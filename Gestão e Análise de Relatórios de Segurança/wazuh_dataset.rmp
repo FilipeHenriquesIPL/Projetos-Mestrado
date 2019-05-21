@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="9.2.001">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="9.2.001" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="subprocess" compatibility="9.2.001" expanded="true" height="82" name="Criação do log" width="90" x="45" y="34">
+        <process expanded="true">
+          <operator activated="true" class="read_csv" compatibility="9.2.001" expanded="true" height="68" name="log 07" width="90" x="45" y="34">
+            <parameter key="csv_file" value="C:\Users\Filipe\Desktop\GARS\Projeto\Projeto_GARS\logs\ossec-archive-07.log"/>
+            <parameter key="column_separators" value=";"/>
+            <parameter key="trim_lines" value="false"/>
+            <parameter key="use_quotes" value="false"/>
+            <parameter key="quotes_character" value="'"/>
+            <parameter key="escape_character" value="\"/>
+            <parameter key="skip_comments" value="true"/>
+            <parameter key="comment_characters" value="#"/>
+            <parameter key="starting_row" value="1"/>
+            <parameter key="parse_numbers" value="true"/>
+            <parameter key="decimal_character" value="."/>
+            <parameter key="grouped_digits" value="false"/>
+            <parameter key="grouping_character" value=","/>
+            <parameter key="infinity_representation" value=""/>
+            <parameter key="date_format" value=""/>
+            <parameter key="first_row_as_names" value="false"/>
+            <list key="annotations"/>
+            <parameter key="time_zone" value="SYSTEM"/>
+            <parameter key="locale" value="English (United States)"/>
+            <parameter key="encoding" value="UTF-8"/>
+            <parameter key="read_all_values_as_polynominal" value="false"/>
+            <list key="data_set_meta_data_information">
+              <parameter key="0" value="att1.true.polynominal.attribute"/>
+            </list>
+            <parameter key="read_not_matching_values_as_missings" value="false"/>
+            <parameter key="datamanagement" value="double_array"/>
+            <parameter key="data_management" value="auto"/>
+          </operator>
+          <operator activated="true" class="read_csv" compatibility="9.2.001" expanded="true" height="68" name="log 08" width="90" x="45" y="136">
+            <parameter key="csv_file" value="C:\Users\Filipe\Desktop\GARS\Projeto\Projeto_GARS\logs\ossec-archive-08.log"/>
+            <parameter key="column_separators" value=","/>
+            <parameter key="trim_lines" value="false"/>
+            <parameter key="use_quotes" value="true"/>
+            <parameter key="quotes_character" value="&quot;"/>
+            <parameter key="escape_character" value="\"/>
+            <parameter key="skip_comments" value="true"/>
+            <parameter key="comment_characters" value="#"/>
+            <parameter key="starting_row" value="1"/>
+            <parameter key="parse_numbers" value="true"/>
+            <parameter key="decimal_character" value="."/>
+            <parameter key="grouped_digits" value="false"/>
+            <parameter key="grouping_character" value=","/>
+            <parameter key="infinity_representation" value=""/>
+            <parameter key="date_format" value=""/>
+            <parameter key="first_row_as_names" value="false"/>
+            <list key="annotations"/>
+            <parameter key="time_zone" value="SYSTEM"/>
+            <parameter key="locale" value="English (United States)"/>
+            <parameter key="encoding" value="windows-1252"/>
+            <parameter key="read_all_values_as_polynominal" value="false"/>
+            <list key="data_set_meta_data_information">
+              <parameter key="0" value="att1.true.polynominal.attribute"/>
+            </list>
+            <parameter key="read_not_matching_values_as_missings" value="false"/>
+            <parameter key="datamanagement" value="double_array"/>
+            <parameter key="data_management" value="auto"/>
+          </operator>
+          <operator activated="true" class="union" compatibility="9.2.001" expanded="true" height="82" name="Union" width="90" x="179" y="34"/>
+          <connect from_op="log 07" from_port="output" to_op="Union" to_port="example set 1"/>
+          <connect from_op="log 08" from_port="output" to_op="Union" to_port="example set 2"/>
+          <connect from_op="Union" from_port="union" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="9.2.001" expanded="true" height="82" name="Criação DataSet" width="90" x="179" y="34">
+        <process expanded="true">
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="date &amp; time" width="90" x="45" y="34">
+            <list key="function_descriptions">
+              <parameter key="date" value="cut(att1,0,11)"/>
+              <parameter key="time" value="cut(att1,12,8)"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="start (anos 2000 - 2099)" width="90" x="179" y="187">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="date.starts_with.20"/>
+            </list>
+            <parameter key="filters_logic_and" value="false"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="Hostname &amp; Log &amp; att2" width="90" x="179" y="34">
+            <list key="function_descriptions">
+              <parameter key="hostname_end_index" value="index(trim(att1),&quot;-&gt;&quot;)"/>
+              <parameter key="hostname_length" value="hostname_end_index-20"/>
+              <parameter key="Hostname" value="cut(trim(att1),20,hostname_length)"/>
+              <parameter key="Log" value="if(contains(att1,&quot;auth.log&quot;),cut(att1,20 + hostname_length + 2, index(att1, &quot;auth.log&quot;)-20 - hostname_length - 2 + 8),&quot;Retirar&quot;)"/>
+              <parameter key="position" value="index(att1,&quot;auth.log&quot;) + 8"/>
+              <parameter key="att2" value="cut(att1, position, length(att1) - position)"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="Log (~Retirar)" width="90" x="313" y="340">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="Log.does_not_contain.Retirar"/>
+            </list>
+            <parameter key="filters_logic_and" value="true"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="month2 &amp; day3 &amp; att2(Update)" width="90" x="313" y="187">
+            <list key="function_descriptions">
+              <parameter key="month2" value="cut(att2, 1, 3)"/>
+              <parameter key="day2" value="cut(att2, 6, index(cut(att2,2,6), &quot; &quot;))"/>
+              <parameter key="att2" value="cut(att2, 6 + index(cut(att2,2,6), &quot; &quot;), length(att2) - 6 - index(cut(att2,2,6), &quot; &quot;))"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="time2 &amp; Agent &amp; Service &amp; att2(Update)" width="90" x="313" y="34">
+            <list key="function_descriptions">
+              <parameter key="time2" value="cut(att2,0,8)"/>
+              <parameter key="att2" value="cut(att2, 9, length(att2) - 9)"/>
+              <parameter key="Agent" value="cut(att2, 0, index(att2, &quot; &quot;))"/>
+              <parameter key="Service" value="if(contains(att2, &quot;sshd&quot;), cut (att2, length(cut(att2, 0, index(att2, &quot; &quot;))) + 1, index(att2, &quot;[&quot;) - length(cut(att2, 0, index(att2, &quot; &quot;))) - 1), &quot;Retirar&quot;)"/>
+              <parameter key="att2" value="cut (att2, length(cut(att2, 0, index(att2, &quot; &quot;))) + 6, length(att2) - length(cut(att2, 0, index(att2, &quot; &quot;))) - 6)"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="Service (~Retirar)" width="90" x="447" y="340">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="Service.does_not_contain.Retirar"/>
+            </list>
+            <parameter key="filters_logic_and" value="true"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="IdProcess &amp; Message" width="90" x="447" y="187">
+            <list key="function_descriptions">
+              <parameter key="IdProcess" value="cut(att2,0, index(att2, &quot;]&quot;))"/>
+              <parameter key="Message" value="if(contains(cut(att2,index(att2, &quot;]&quot;) + 2, length(att2) -index(att2, &quot;]&quot;) - 2), &quot;from &quot;), cut(cut(att2,index(att2, &quot;]&quot;) + 2, length(att2) -index(att2, &quot;]&quot;) - 2), 0, index(cut(att2,index(att2, &quot;]&quot;) + 2, length(att2) -index(att2, &quot;]&quot;) - 2), &quot;from &quot;)), &quot;Retirar&quot;)"/>
+              <parameter key="att2" value="cut(att2, length(Message) + length(IdProcess) + 7, length(att2) - length(Message) - length(IdProcess) - 7)"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="Message(~Retirar)" width="90" x="447" y="34">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="Message.does_not_contain.Retirar"/>
+            </list>
+            <parameter key="filters_logic_and" value="true"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="Ip &amp; att2(Update) &amp; porto1" width="90" x="581" y="340">
+            <list key="function_descriptions">
+              <parameter key="Ip" value="cut(att2,0, index(att2, &quot; &quot;))"/>
+              <parameter key="att2" value="cut(att2, length(Ip) + 6, length(att2) - length(Ip) - 6)"/>
+              <parameter key="porto1" value="if (ends(att2, &quot;ssh2&quot;), cut(att2, 0, index(att2, &quot; &quot;)), att2)"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="Formar datas/tempos &amp; IpAlvo &amp; End" width="90" x="581" y="187">
+            <list key="function_descriptions">
+              <parameter key="End" value="if(ends(att2, &quot;ssh2&quot;), cut(att2, length(porto1) + 1, length(att2)-length(porto1)-1), &quot; &quot;)"/>
+              <parameter key="YearServer" value="cut(date, 0, 4)"/>
+              <parameter key="MonthServer" value="cut(date, 5, 3)"/>
+              <parameter key="DayServer" value="cut(date, 9, 2)"/>
+              <parameter key="HourServer" value="cut(time, 0, 2)"/>
+              <parameter key="MinuteServer" value="cut(time, 3, 2)"/>
+              <parameter key="HourAgent" value="cut(time2, 0, 2)"/>
+              <parameter key="MinuteAgent" value="cut(time2, 3, 2)"/>
+              <parameter key="DateAgent" value="concat(concat(month2, &quot; &quot;), day2)"/>
+              <parameter key="IpAlvo" value="cut(cut(Hostname, 1, length(Hostname)-1), index(cut(Hostname, 1, length(Hostname)-1), &quot; &quot;) + 1, length(cut(Hostname, 1, length(Hostname)-1))- index(cut(Hostname, 1, length(Hostname)-1), &quot; &quot;) - 1)"/>
+              <parameter key="TimeAgent" value="concat(concat(HourAgent, &quot;:&quot;), MinuteAgent)"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="select_attributes" compatibility="9.2.001" expanded="true" height="82" name="Select Attributes" width="90" x="581" y="34">
+            <parameter key="attribute_filter_type" value="subset"/>
+            <parameter key="attribute" value=""/>
+            <parameter key="attributes" value="Agent|date|DateAgent|day2|DayServer|HourAgent|HourServer|IdProcess|Ip|IpAlvo|Log|Message|MinuteAgent|MinuteServer|month2|MonthServer|porto1|Service|time|time2|YearServer|TimeAgent"/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+          </operator>
+          <operator activated="true" class="rename" compatibility="9.2.001" expanded="true" height="82" name="Rename" width="90" x="715" y="340">
+            <parameter key="old_name" value="date"/>
+            <parameter key="new_name" value="DateServer"/>
+            <list key="rename_additional_attributes">
+              <parameter key="day2" value="DayAgent"/>
+              <parameter key="month2" value="MonthAgent"/>
+              <parameter key="porto1" value="PortAgent"/>
+              <parameter key="time" value="TimeServer"/>
+              <parameter key="Ip" value="IpAtaque"/>
+            </list>
+          </operator>
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="Message(Mensagens de Erro ou Sucesso)" width="90" x="715" y="136">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="Message.contains.Failed"/>
+              <parameter key="filters_entry_key" value="Message.contains.Invalid"/>
+              <parameter key="filters_entry_key" value="Message.contains.Accepted"/>
+            </list>
+            <parameter key="filters_logic_and" value="false"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="generate_attributes" compatibility="9.2.001" expanded="true" height="82" name="User &amp; State" width="90" x="715" y="34">
+            <list key="function_descriptions">
+              <parameter key="User" value="if(contains(Message, &quot;user&quot;),cut(Message, index(Message, &quot;user&quot;)+5, length(Message)- index(Message, &quot;user&quot;)-5), &#10;if(contains(Message, &quot;for&quot;), cut(Message, index(Message, &quot;for&quot;) + 4, length(Message)- index(Message, &quot;for&quot;) - 4), &quot;Algo deu errado&quot;))"/>
+              <parameter key="State" value="if(contains(upper(Message), &quot;FAILED&quot;) &amp;&amp; contains(upper(Message), &quot;INVALID&quot;), 3, if(contains(upper(Message), &quot;INVALID&quot;), 1,&#10;if(contains(upper(Message), &quot;FAILED&quot;), 2, if(contains(upper(Message), &quot;ACCEPTED&quot;), 0, -1))))"/>
+            </list>
+            <parameter key="keep_all" value="true"/>
+          </operator>
+          <operator activated="true" class="select_attributes" compatibility="9.2.001" expanded="true" height="82" name="Select Attributes (2)" width="90" x="849" y="34">
+            <parameter key="attribute_filter_type" value="subset"/>
+            <parameter key="attribute" value=""/>
+            <parameter key="attributes" value="DateServer|DayServer|HourServer|Log|MinuteServer|MonthServer|PortAgent|Service|time2|TimeServer|YearServer"/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="true"/>
+            <parameter key="include_special_attributes" value="false"/>
+          </operator>
+          <operator activated="true" class="write_csv" compatibility="9.2.001" expanded="true" height="82" name="Write CSV" width="90" x="983" y="34">
+            <parameter key="csv_file" value="C:\Users\Filipe\Desktop\patricia.csv"/>
+            <parameter key="column_separator" value=";"/>
+            <parameter key="write_attribute_names" value="true"/>
+            <parameter key="quote_nominal_values" value="true"/>
+            <parameter key="format_date_attributes" value="true"/>
+            <parameter key="append_to_file" value="false"/>
+            <parameter key="encoding" value="SYSTEM"/>
+          </operator>
+          <connect from_port="in 1" to_op="date &amp; time" to_port="example set input"/>
+          <connect from_op="date &amp; time" from_port="example set output" to_op="start (anos 2000 - 2099)" to_port="example set input"/>
+          <connect from_op="start (anos 2000 - 2099)" from_port="example set output" to_op="Hostname &amp; Log &amp; att2" to_port="example set input"/>
+          <connect from_op="Hostname &amp; Log &amp; att2" from_port="example set output" to_op="Log (~Retirar)" to_port="example set input"/>
+          <connect from_op="Log (~Retirar)" from_port="example set output" to_op="month2 &amp; day3 &amp; att2(Update)" to_port="example set input"/>
+          <connect from_op="month2 &amp; day3 &amp; att2(Update)" from_port="example set output" to_op="time2 &amp; Agent &amp; Service &amp; att2(Update)" to_port="example set input"/>
+          <connect from_op="time2 &amp; Agent &amp; Service &amp; att2(Update)" from_port="example set output" to_op="Service (~Retirar)" to_port="example set input"/>
+          <connect from_op="Service (~Retirar)" from_port="example set output" to_op="IdProcess &amp; Message" to_port="example set input"/>
+          <connect from_op="IdProcess &amp; Message" from_port="example set output" to_op="Message(~Retirar)" to_port="example set input"/>
+          <connect from_op="Message(~Retirar)" from_port="example set output" to_op="Ip &amp; att2(Update) &amp; porto1" to_port="example set input"/>
+          <connect from_op="Ip &amp; att2(Update) &amp; porto1" from_port="example set output" to_op="Formar datas/tempos &amp; IpAlvo &amp; End" to_port="example set input"/>
+          <connect from_op="Formar datas/tempos &amp; IpAlvo &amp; End" from_port="example set output" to_op="Select Attributes" to_port="example set input"/>
+          <connect from_op="Select Attributes" from_port="example set output" to_op="Rename" to_port="example set input"/>
+          <connect from_op="Rename" from_port="example set output" to_op="Message(Mensagens de Erro ou Sucesso)" to_port="example set input"/>
+          <connect from_op="Message(Mensagens de Erro ou Sucesso)" from_port="example set output" to_op="User &amp; State" to_port="example set input"/>
+          <connect from_op="User &amp; State" from_port="example set output" to_op="Select Attributes (2)" to_port="example set input"/>
+          <connect from_op="Select Attributes (2)" from_port="example set output" to_op="Write CSV" to_port="input"/>
+          <connect from_op="Write CSV" from_port="through" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="multiply" compatibility="9.2.001" expanded="true" height="145" name="DataSet" width="90" x="313" y="34"/>
+      <operator activated="true" class="subprocess" compatibility="9.2.001" expanded="true" height="82" name="Total de tentativas de login com utilizadores inválido/válidos" width="90" x="514" y="85">
+        <process expanded="true">
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="State &gt;= 2 (2)" width="90" x="112" y="34">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="State.ge.2"/>
+            </list>
+            <parameter key="filters_logic_and" value="true"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="aggregate" compatibility="9.2.001" expanded="true" height="82" name="Contar tentativas user inválido/válido" width="90" x="313" y="34">
+            <parameter key="use_default_aggregation" value="false"/>
+            <parameter key="attribute_filter_type" value="all"/>
+            <parameter key="attribute" value=""/>
+            <parameter key="attributes" value=""/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+            <parameter key="default_aggregation_function" value="average"/>
+            <list key="aggregation_attributes">
+              <parameter key="IdProcess" value="count"/>
+            </list>
+            <parameter key="group_by_attributes" value="Agent|State"/>
+            <parameter key="count_all_combinations" value="false"/>
+            <parameter key="only_distinct" value="true"/>
+            <parameter key="ignore_missings" value="true"/>
+          </operator>
+          <connect from_port="in 1" to_op="State &gt;= 2 (2)" to_port="example set input"/>
+          <connect from_op="State &gt;= 2 (2)" from_port="example set output" to_op="Contar tentativas user inválido/válido" to_port="example set input"/>
+          <connect from_op="Contar tentativas user inválido/válido" from_port="example set output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="9.2.001" expanded="true" height="82" name="Logins válidos efectuados" width="90" x="514" y="289">
+        <process expanded="true">
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="State = 0" width="90" x="45" y="34">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="State.eq.0"/>
+            </list>
+            <parameter key="filters_logic_and" value="true"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="aggregate" compatibility="9.2.001" expanded="true" height="82" name="Contar sucessos" width="90" x="179" y="34">
+            <parameter key="use_default_aggregation" value="false"/>
+            <parameter key="attribute_filter_type" value="all"/>
+            <parameter key="attribute" value=""/>
+            <parameter key="attributes" value=""/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+            <parameter key="default_aggregation_function" value="average"/>
+            <list key="aggregation_attributes">
+              <parameter key="IdProcess" value="count"/>
+            </list>
+            <parameter key="group_by_attributes" value="Agent|User|IpAtaque"/>
+            <parameter key="count_all_combinations" value="false"/>
+            <parameter key="only_distinct" value="true"/>
+            <parameter key="ignore_missings" value="true"/>
+          </operator>
+          <connect from_port="in 1" to_op="State = 0" to_port="example set input"/>
+          <connect from_op="State = 0" from_port="example set output" to_op="Contar sucessos" to_port="example set input"/>
+          <connect from_op="Contar sucessos" from_port="example set output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="subprocess" compatibility="9.2.001" expanded="true" height="82" name="Total de logins inválidos para cada Ip de Origem" width="90" x="514" y="187">
+        <process expanded="true">
+          <operator activated="true" class="filter_examples" compatibility="9.2.001" expanded="true" height="103" name="State &lt;= 2 (2)" width="90" x="45" y="34">
+            <parameter key="parameter_expression" value=""/>
+            <parameter key="condition_class" value="custom_filters"/>
+            <parameter key="invert_filter" value="false"/>
+            <list key="filters_list">
+              <parameter key="filters_entry_key" value="State.ge.2"/>
+            </list>
+            <parameter key="filters_logic_and" value="true"/>
+            <parameter key="filters_check_metadata" value="true"/>
+          </operator>
+          <operator activated="true" class="select_attributes" compatibility="9.2.001" expanded="true" height="82" name="IpAtaque &amp; State" width="90" x="179" y="34">
+            <parameter key="attribute_filter_type" value="subset"/>
+            <parameter key="attribute" value="IpAtaque"/>
+            <parameter key="attributes" value="Agent|IpAtaque|State|IdProcess"/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+          </operator>
+          <operator activated="true" class="aggregate" compatibility="9.2.001" expanded="true" height="82" name="Contar Tentativa por IpAtaque" width="90" x="313" y="34">
+            <parameter key="use_default_aggregation" value="false"/>
+            <parameter key="attribute_filter_type" value="all"/>
+            <parameter key="attribute" value=""/>
+            <parameter key="attributes" value=""/>
+            <parameter key="use_except_expression" value="false"/>
+            <parameter key="value_type" value="attribute_value"/>
+            <parameter key="use_value_type_exception" value="false"/>
+            <parameter key="except_value_type" value="time"/>
+            <parameter key="block_type" value="attribute_block"/>
+            <parameter key="use_block_type_exception" value="false"/>
+            <parameter key="except_block_type" value="value_matrix_row_start"/>
+            <parameter key="invert_selection" value="false"/>
+            <parameter key="include_special_attributes" value="false"/>
+            <parameter key="default_aggregation_function" value="average"/>
+            <list key="aggregation_attributes">
+              <parameter key="IdProcess" value="count"/>
+            </list>
+            <parameter key="group_by_attributes" value="IpAtaque"/>
+            <parameter key="count_all_combinations" value="false"/>
+            <parameter key="only_distinct" value="true"/>
+            <parameter key="ignore_missings" value="true"/>
+          </operator>
+          <connect from_port="in 1" to_op="State &lt;= 2 (2)" to_port="example set input"/>
+          <connect from_op="State &lt;= 2 (2)" from_port="example set output" to_op="IpAtaque &amp; State" to_port="example set input"/>
+          <connect from_op="IpAtaque &amp; State" from_port="example set output" to_op="Contar Tentativa por IpAtaque" to_port="example set input"/>
+          <connect from_op="Contar Tentativa por IpAtaque" from_port="example set output" to_port="out 1"/>
+          <portSpacing port="source_in 1" spacing="0"/>
+          <portSpacing port="source_in 2" spacing="0"/>
+          <portSpacing port="sink_out 1" spacing="0"/>
+          <portSpacing port="sink_out 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Criação do log" from_port="out 1" to_op="Criação DataSet" to_port="in 1"/>
+      <connect from_op="Criação DataSet" from_port="out 1" to_op="DataSet" to_port="input"/>
+      <connect from_op="DataSet" from_port="output 1" to_op="Total de logins inválidos para cada Ip de Origem" to_port="in 1"/>
+      <connect from_op="DataSet" from_port="output 2" to_port="result 1"/>
+      <connect from_op="DataSet" from_port="output 3" to_op="Logins válidos efectuados" to_port="in 1"/>
+      <connect from_op="DataSet" from_port="output 4" to_op="Total de tentativas de login com utilizadores inválido/válidos" to_port="in 1"/>
+      <connect from_op="Total de tentativas de login com utilizadores inválido/válidos" from_port="out 1" to_port="result 2"/>
+      <connect from_op="Logins válidos efectuados" from_port="out 1" to_port="result 4"/>
+      <connect from_op="Total de logins inválidos para cada Ip de Origem" from_port="out 1" to_port="result 3"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+      <portSpacing port="sink_result 4" spacing="0"/>
+      <portSpacing port="sink_result 5" spacing="0"/>
+      <description align="center" color="blue" colored="true" height="417" resized="true" width="187" x="454" y="10">An&amp;#225;lise SSH por Agent&lt;br&gt;&lt;br&gt;</description>
+    </process>
+  </operator>
+</process>
